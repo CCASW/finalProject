@@ -24,27 +24,34 @@ public class Graph extends Canvas implements Runnable{
     private ImpDots imps;
     private boolean sine;
     private boolean hold;
+    private int thickness;
+    private FramePanel form;
+    private ReadWrite setter;
     private Scanner key;
     public Graph(){
         setBackground(Color.WHITE);
         setVisible(true);
-        f="f(x)=";
+        
         mult=1;
         add=0;
         sinMult=1;
         base=-1;
         exp=1;
         div=1;
+        thickness=2;
         sine=false;
         dots=new Dots();
         imps=new ImpDots();
+        form=new FramePanel();
+        setter=new ReadWrite();
+        f="f(x)="+setter.go();
         Scanner key=new Scanner(System.in);
         for(int i=0;i<800;i++){
             dots.add(new Dot(i,300));
             imps.add(new ImpDot(i,400));
         }
         new Thread(this).start();
-        hold=false;
+        hold=form.hold;
         setVisible(true);
     }
     public void update(Graphics window){
@@ -56,7 +63,28 @@ public class Graph extends Canvas implements Runnable{
     public void paint(Graphics window){
         window.drawLine(0, 300, 800, 300);
         window.drawLine(400, 0, 400, 600);
-        f="f(x)=x";//will add scanner later for user input
+        hold=form.hold;
+        if(!(("f(x)="+form.func).equals(f))&&!hold){ 
+            dots.setColor(Color.WHITE);
+            dots.draw(window);
+            window.setColor(Color.WHITE);
+            imps.draw(window);
+            window.setColor(Color.BLUE);
+            sine=false;
+            mult=1;
+            sinMult=1;
+            add=0;
+            exp=1;
+            for(int i=0;i<imps.size();i++){
+                imps.get(i).setDraw(false);
+            }
+            base=-1;
+            div=1;
+        }
+        
+        dots.setColor(Color.BLACK);
+        
+        f="f(x)="+form.func;
         for(int i=5;i<f.length();i++){
             if(f.charAt(i)=='x'){
                 if(f.charAt(i-1)!=' '&&f.charAt(i-1)!='+'&&f.charAt(i-1)!='='&&f.charAt(i-1)!='n'){
@@ -69,9 +97,24 @@ public class Graph extends Canvas implements Runnable{
                     if(f.charAt(i-3)=='-'||f.charAt(i-4)=='-') add*=-1;}
                 }
             
-                if(f.charAt(i-1)=='+') add=Character.getNumericValue(f.charAt(i-2));
-                if(i+1<f.length()&&f.charAt(i+1)=='+') add=Character.getNumericValue(f.charAt(i+2));
-                if(f.charAt(i-2)=='+') add=Character.getNumericValue(f.charAt(i-3));
+                if(f.charAt(i-1)=='+'){ add=Character.getNumericValue(f.charAt(i-2));
+                    
+                    if(isNum(f.charAt(i-3))) add+=10*Character.getNumericValue(f.charAt(i-3));
+                    if(f.charAt(i-3)=='-'||(isNum(f.charAt(i-3))&&f.charAt(i-4)=='-')) add*=-1;
+                }
+                if(i+1<f.length()&&(f.charAt(i+1)=='+'||f.charAt(i+1)=='-')){ 
+                    add=Character.getNumericValue(f.charAt(i+2));
+                    if(i+3<f.length()&&isNum(f.charAt(i+3))){add*=10; add+=Character.getNumericValue(f.charAt(i+3));
+                    if(f.charAt(i+1)=='-') add*=-1;
+                    }
+                }
+                if(f.charAt(i-2)=='+'||f.charAt(i-2)=='-'){
+                    add=Character.getNumericValue(f.charAt(i-3));
+                    if(isNum(f.charAt(i-4))){
+                        add+=10*Character.getNumericValue(f.charAt(i-4));
+                        if(f.charAt(i-2)=='-') add*=-1;
+                    }
+                }
                 if(i+1<f.length()&&f.charAt(i+1)=='^'){ 
                     exp=Character.getNumericValue(f.charAt(i+2));
                     if(i+3<f.length()&&f.charAt(i+3)=='/') div=Character.getNumericValue(f.charAt(i+4));}
@@ -105,7 +148,7 @@ public class Graph extends Canvas implements Runnable{
             else
                 dots.get(i).setyPos((int)(300-(Math.pow(base,dots.get(i).getxPos()-400))*-1*((float)mult/div)-(add*25)));
             
-            int thickness=2;//need to modify thickness as the spacing is usually greater than the dots can cover
+            thickness=2;//need to modify thickness as the spacing is usually greater than the dots can cover
             if(exp!=1) thickness=Math.abs((exp-1)*(dots.get(i).getxPos()-400))/3;
             else if(!sine)thickness=(2*mult)/div;
             else if(sine) thickness=Math.min(5*mult*sinMult,10*sinMult);//modification depends on the function used
@@ -121,10 +164,13 @@ public class Graph extends Canvas implements Runnable{
                 }
             }
         }
+        
         dots.draw(window);
         window.setColor(Color.BLUE);
         imps.draw(window);
-        window.setColor(Color.BLACK);
+        setter.go();
+        hold=form.hold;
+        
     }
     public void run()
    {

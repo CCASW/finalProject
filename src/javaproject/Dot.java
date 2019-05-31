@@ -11,11 +11,14 @@ public class Dot extends AbstractShape{
     public Dot(int x, int y){
         super(x,y,2,2,Color.BLACK);
     }
+    public void setColor(Color c){
+        col=c;
+    }
     public Dot(int x, int y, int w, int h, Color c){
         super(x,y,w,h,c);
     }
     public void draw(Graphics window){
-        window.setColor(getCol());
+        window.setColor(col);
         window.fillRect(getxPos(),getyPos(),getWidth(),getHeight());
     }
 }

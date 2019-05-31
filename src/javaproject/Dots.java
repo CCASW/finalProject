@@ -27,6 +27,11 @@ public class Dots implements ObjList{
     public int size(){
         return dots.size();
     }
+    public void setColor(Color c){
+        for(int i=0;i<dots.size();i++){
+            dots.get(i).setColor(c);
+        }
+    }
     public Dot get(int a){
         return dots.get(a);
     }

@@ -9,21 +9,37 @@ import javax.swing.JFrame;
 import java.awt.Component;
 public class JavaProject extends JFrame{
     
-    private static final int WIDTH = 800;
-    private static final int HEIGHT = 600;
+    private static final int WIDTH = 400;
+    private static final int HEIGHT = 300;
+    
+    Graph theGraph;
+    FramePanel form;
     public JavaProject(){
         super("GRAPH");
         setSize(WIDTH,HEIGHT);
-        Graph theGraph=new Graph();
+        form=new FramePanel();
+        getContentPane().add(form);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setVisible(true);
+        
+    }
+    public JavaProject(int a){
+        super("GRAPH");
+        setSize(800,600);
+        theGraph=new Graph();
+        form=new FramePanel();
         ((Component)theGraph).setFocusable(true);
         getContentPane().add(theGraph);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setVisible(true);
     }
-    
+  
     
     public static void main(String[] args) {
-        JavaProject run=new JavaProject();
+        OpeningFrame open=new OpeningFrame();
+        open.go();
+        JavaProject go=new JavaProject();
+        JavaProject run=new JavaProject(1);
     }
     
 }
